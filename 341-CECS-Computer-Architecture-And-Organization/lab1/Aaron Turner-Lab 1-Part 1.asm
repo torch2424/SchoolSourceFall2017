@@ -1,6 +1,6 @@
 # Aaron Turner - 011502541
 
-# Example Usage
+# Example Usage / Test Case
 # Number of integers (N)? 5
 # Multiplier (y)? 4
 # Sum = 60

@@ -1,9 +1,10 @@
 # Aaron Turner - 011502541
 
-# Example Usage
-# Number of integers (N)? 5
-# Multiplier (y)? 4
-# Sum = 60
+# Example Usage / Test Case
+# NOTE: The maximum string length is 100 characters, as the minimum is 50
+# Input a string: Coding Assembly is sometimes cool, but I like Javascript More
+#
+# eroM tpircsavaJ ekil I tub ,looc semitemos si ylbmessA gnidoC
 #
 # -- program is finished running --
 
@@ -12,12 +13,11 @@
 
 # Array with space to hold 1 integer
 # Must be defined first to ensure everything is word aligned
-tempaddress: .space	4
+stringbuffer: .space	100
+reversebuffer: .space 100
 
 newline: .asciiz "\n"
-getnstring: .asciiz "Number of integers (N)? "
-getystring: .asciiz "Multiplier (y)? "
-showsumstring: .asciiz "Sum = "
+stringprompt: .asciiz "Input a string: "
 
 
 .text
@@ -25,45 +25,62 @@ showsumstring: .asciiz "Sum = "
 
 # Main Start point for program
 main:
-	# Set our memory address at $t0
-	la $t0, tempaddress
-
-	# Prompt the user for N
-	la $a0, getnstring
+	# Prompt the user for a string
+	la $a0, stringprompt
 	jal printstring
 
-	# Get input of N ($t1)
-	jal getintinput
-	sw $v0, 0($t0)
-  lw $t1, 0($t0)
+	# Read in the string
+	la $a0, stringbuffer
+	li $a1, 100
+	jal getstringinput
+	# Store the address in $t0
+	la $t0, stringbuffer
 
-	# Prompt the User for Y
-	la $a0, getystring
-	jal printstring
+	# Find the Length of the string
+	# End of string will contain zero
+  # $t1 to represent length / string index
+	# $t2 to store a character
+	# offset our temp string
+  li $t1, -1
+	addi $t0, $t0, -1
+	lengthloop:
+		addi $t0, $t0, 1
+    addi $t1, $t1, 1
+		# Get the string value at i
+		lb $t2, 0($t0)
+		# Loop if $t2 has something in it (More than zero)
+		bgt $t2, $zero, lengthloop
 
-	# Get input of Y ($t2)
-	jal getintinput
-	sw $v0, 0($t0)
-  lw $t2, 0($t0)
+  # Reset t0 to string address
+  la $t0, stringbuffer
 
-	# Loop to N, and Sum ($t3) i ($t4) * i
-  li $t3, 0
-  li $t4, 1
-  loop:
-    # Multiply i and Y
-    mult $t4, $t2
-    mflo $v0
-    add $t3, $t3, $v0
-    addi $t4, $t4, 1
-    # Jump back to top of loop if i is still less than N
-    ble $t4, $t1, loop
+  # Set the string address to the end
+  add $t0, $t0, $t1
 
-	# Print Sum to user
-  la $a0, showsumstring
-	jal printstring
-  move $a0, $t3
-  jal printint
-  la $a0, newline
+  # Set $t3 to the reverse string address
+  la $t3, reversebuffer
+
+  # Reverse the string at the reverse string buffer
+  # reusing $t2 as temp byte store
+  # Offset for our do-while loop
+  addi $t3, $t3, -1
+  reverseloop:
+    # Decrement the string buffer, increment the reverse buffer
+    addi $t0, $t0, -1
+    addi $t3, $t3, 1
+    # Get the byte from the string, and place into the reverse
+    lb $t2, 0($t0)
+    sb $t2, 0($t3)
+    # Decrement our length (string index)
+    addi $t1, $t1, -1
+    bgt $t1, $zero, reverseloop
+
+  # Print the reversed string
+  la $a0, reversebuffer
+  jal printstring
+
+  # Newline for cleanup
+	la $a0, newline
 	jal printstring
 
 	# Exit
@@ -76,17 +93,13 @@ printstring:
 	syscall
 	jr $ra
 
-# Function to print an integer
-# Load int into $a0 before jumping, for instance: move $a0, $t0
-printint:
-	li $v0, 1
-	syscall
-	jr $ra
-
 # Function to get integer input
-# Result will be stored in $v0, For instance, to get value into $t0: sw $v0, $t0
-getintinput:
-	li $v0, 5
+# Result will be stored in $v0
+# Store memory address at $a0: la $a0, memaddress
+# Store buffer length (Same ad memory address space) at $a1: li $a1, 100
+# Result will be in $a0: move $t0, $a0
+getstringinput:
+	li $v0, 8
 	syscall
 	jr $ra
 
