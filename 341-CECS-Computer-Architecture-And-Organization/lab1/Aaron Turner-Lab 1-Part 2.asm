@@ -1,7 +1,6 @@
 # Aaron Turner - 011502541
 
 # Example Usage / Test Case
-# NOTE: The maximum string length is 100 characters, as the minimum is 50
 # Input a string: Coding Assembly is sometimes cool, but I like Javascript More
 #
 # eroM tpircsavaJ ekil I tub ,looc semitemos si ylbmessA gnidoC
@@ -13,8 +12,8 @@
 
 # Array with space to hold 1 integer
 # Must be defined first to ensure everything is word aligned
-stringbuffer: .space	100
-reversebuffer: .space 100
+stringbuffer: .space	50
+reversebuffer: .space 50
 
 newline: .asciiz "\n"
 stringprompt: .asciiz "Input a string: "
